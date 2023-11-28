@@ -1,0 +1,10 @@
+fastapi
+python-docx
+anthropic
+pytesseract
+pymupdf
+python-dotenv
+python-multipart
+uvicorn
+pandas
+openpyxl
