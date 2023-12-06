@@ -33,7 +33,7 @@ async def chat_completion(files:list[UploadFile],project_name:str = Form(),custo
         processed_response += f'Content- {index}'+"\n \n"+file_uploaded.process_file_to_txt()+"\n \n"
 
     response = request_claude(processed_response)
-    modified_res = loads(response)
+    modified_res = response
     print(modified_res)
     return {'message':modified_res}
     
