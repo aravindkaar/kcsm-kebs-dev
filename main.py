@@ -35,5 +35,5 @@ async def chat_completion(files:list[UploadFile],project_name:str = Form(),custo
     response = request_claude(processed_response)
     modified_res = loads(response)
     print(modified_res)
-    return {'mess':modified_res}
+    return {'message':modified_res}
     
