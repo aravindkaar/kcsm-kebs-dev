@@ -32,5 +32,8 @@ def request_claude(extracted_text):
         temperature=0,
         prompt=f"{HUMAN_PROMPT}{system_prompt}{AI_PROMPT}"
     )
-
-    return completion.completion.split(':',1)[-1]
+    
+    if ':' in completion.completion:
+        return completion.completion.split(':',1)[-1]
+    else:
+        return completion.completion

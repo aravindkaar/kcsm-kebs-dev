@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from docx import Document
 from PIL import Image
-import fitz,pandas as pd,io,os
+import fitz,pandas as pd,io
 import pytesseract
 load_dotenv()
 
@@ -54,6 +54,7 @@ def extract_text_from_excel(excel_file):
 
 
 def extract_text_from_image(image_file):
+    pytesseract.pytesseract.tesseract_cmd = r"./tesseract/tesseract.exe"
     image = Image.open(io.BytesIO(image_file.file.read()))
     text = pytesseract.image_to_string(image)
     return text
