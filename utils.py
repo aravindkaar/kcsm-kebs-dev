@@ -10,11 +10,10 @@ def request_claude(extracted_text):
     )
 
     system_prompt = f"""
-                You are a highly skilled AI trained in language comprehension and question and answering.
-                I would like you to read the following contents which are numbered in which each content 
-                is a parsed document content.Read all the contents carefully and thoroughly and answer the follwing questions
-                keenly. the answer's can be found in each content and mainly dont hallucinate or assume.
-                Generate the answers in json format where key is the question number.
+                You are a highly skilled AI trained in generating case study document and question and answering.
+                Read all the contents carefully,keenly and thoroughly and answer the follwing questions in json format
+                wherein each key is question number and the value is the corresponding answer if there is subheading inturn use it as a key.
+                The answer's can be found in each content,include all relevant details and mainly dont hallucinate or assume.
                 
                 Questions:
                 1) What is industry vertical relating to the context?
@@ -30,7 +29,8 @@ def request_claude(extracted_text):
     completion = anthropic.completions.create(
         model="claude-2",
         max_tokens_to_sample=11300,
-        prompt=system_prompt,
+        temperature=0,
+        prompt=f"{HUMAN_PROMPT}{system_prompt}{AI_PROMPT}"
     )
 
-    return completion.completion
+    return completion.completion.split(':',1)[-1]
