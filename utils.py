@@ -1,6 +1,6 @@
 from dotenv import load_dotenv
 from openai import OpenAI
-import os
+import os,json
 load_dotenv()
 
 
@@ -45,10 +45,11 @@ def request_open_ai(extracted_text):
     
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo-16k",
+        response_format={'type':'json_object'},
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": extracted_text}
         ]
         )
     
-    return completion.choices[0].message
+    return json.loads(completion.choices[0].message)
