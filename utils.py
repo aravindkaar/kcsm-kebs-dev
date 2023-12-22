@@ -1,39 +1,54 @@
-from anthropic import Anthropic, HUMAN_PROMPT, AI_PROMPT
 from dotenv import load_dotenv
+from openai import OpenAI
 import os
 load_dotenv()
 
-def request_claude(extracted_text):
 
-    anthropic = Anthropic(
-        api_key=os.getenv('API_KEY'),
-    )
 
-    system_prompt = f"""
-                You are a highly skilled AI trained in generating case study document and question and answering.
-                Read all the contents carefully,keenly and thoroughly and answer the follwing questions in json format
-                wherein each key is question number and the value is the corresponding answer if there is subheading inturn use it as a key.
-                The answer's can be found in each content,include all relevant details and mainly dont hallucinate or assume.
-                
-                Questions:
-                1) What is industry vertical relating to the context?
-                2) Customer Overview with name,location,business scope and company size?
-                3) Project Overview with Objective, Techstack,Key benefits?
-                4) What is the implementation approach explain the steps?
-                5) Explain challenges involved and solutions?
-                6) Brief results and impact?
-                7) What are the project deliverables (if any) in each phase and their status?
 
-            {extracted_text}  
-            """
-    completion = anthropic.completions.create(
-        model="claude-2",
-        max_tokens_to_sample=11300,
-        temperature=0,
-        prompt=f"{HUMAN_PROMPT}{system_prompt}{AI_PROMPT}"
-    )
+
+def request_open_ai(extracted_text):
+
+    client = OpenAI(api_key=os.getenv('KEY'))
+
+    system_prompt = """You are an extremely skilled AI Model in Extracting key information and question answering.
+            I am going to give you a task of locating and extracting information from the following content.
+            read it thorougly and keenly.
+            skip the preamble go straight into fetching answers for the questions in the below json document. fill the answers in the same json document and
+            display it. if there are no answers fill N/A in the json document.
+            strictly check for json formatting dont miss any commas,double quotas and curly braces.
+            
+            {
+                    "industry_vertical":null,
+                    "customer_overview":
+                            {
+                                    "customer_name":null,
+                                    "location":null,
+                                    "business_scope":null,
+                                    "company_size":null,
+                            },
+                            "project_overview":
+                                        {
+                                            "objective":null,
+                                            "techstack":[null],
+                                            "benefits":null
+                                        },
+                            
+                                "implementation_approach":null,
+                                "challenges":null,
+                                "expected_results":null,
+                                "impact":null,
+                                "project_deliverables":null
+        }
+
+"""
     
-    if ':' in completion.completion:
-        return completion.completion.split(':',1)[-1]
-    else:
-        return completion.completion
+    completion = client.chat.completions.create(
+        model="gpt-3.5-turbo-16k",
+        messages=[
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": extracted_text}
+        ]
+        )
+    
+    return completion.choices[0].message

@@ -2,7 +2,7 @@ from fastapi import FastAPI,UploadFile,Form
 from fastapi.middleware.cors import CORSMiddleware
 from file import FileProcessor
 from json import loads,dumps
-from utils import request_claude
+from utils import request_open_ai
 app = FastAPI()
 
 origins = [
@@ -32,7 +32,7 @@ async def chat_completion(files:list[UploadFile],project_name:str = Form(),custo
         file_uploaded = FileProcessor(file)
         processed_response += f'Content- {index}'+"\n \n"+file_uploaded.process_file_to_txt()+"\n \n"
 
-    response = request_claude(processed_response)
+    response = request_open_ai(processed_response)
     modified_res = response
     return {'message':modified_res}
     
