@@ -51,4 +51,4 @@ def request_open_ai(extracted_text):
         ]
         )
     
-    return json.loads(completion.choices[0].message)
+    return completion.choices[0].message
