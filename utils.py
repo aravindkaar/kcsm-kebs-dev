@@ -45,7 +45,6 @@ def request_open_ai(extracted_text):
     
     completion = client.chat.completions.create(
         model="gpt-3.5-turbo-16k",
-        response_format={'type':'json_object'},
         messages=[
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": extracted_text}
