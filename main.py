@@ -1,6 +1,7 @@
 from fastapi import FastAPI,UploadFile,Form
 from fastapi.middleware.cors import CORSMiddleware
 from file import FileProcessor
+from typing import List
 from json import loads,dumps
 from utils import request_open_ai
 app = FastAPI()
@@ -20,12 +21,12 @@ app.add_middleware(
     allow_headers=["*"], 
 )
 
-@app.route('/')
+@app.get('/')
 async def home():
     return 'home'
 
 @app.post('/generator')
-async def chat_completion(files:list[UploadFile],project_name:str = Form(),customer_name:str = Form()):
+async def chat_completion(files:List[UploadFile],project_name:str = Form(),customer_name:str = Form()):
     processed_response = ""
     for index,file in enumerate(files):
         print(file.filename)
