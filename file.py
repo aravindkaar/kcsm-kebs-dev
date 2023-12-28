@@ -80,4 +80,9 @@ class FileProcessor():
                 return extract_text_from_image(self.file)
             else:
                 return "Unsupported file type"
-    
+
+class FileBlobWrapper():
+    def __init__(self,blob,filename,content_type):
+        self.file = blob
+        self.filename = filename
+        self.content_type = content_type

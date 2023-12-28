@@ -2,3 +2,6 @@
 __pycache__
 Dockerfile
 tesseract/
+test.ipynb
+case_study_generator/
+output/
