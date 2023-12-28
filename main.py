@@ -22,12 +22,12 @@ app.add_middleware(
     allow_headers=["*"], 
 )
 
-@app.route('/')
+@app.get('/')
 async def home():
     return 'home'
 
 @app.post('/generator')
-async def chat_completion(files:list[UploadFile],project_name:str = Form(),customer_name:str = Form()):
+async def chat_completion(files:List[UploadFile],project_name:str = Form(),customer_name:str = Form()):
     processed_response = ""
     for index,file in enumerate(files):
         print(file.filename)
