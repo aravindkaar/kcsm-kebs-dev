@@ -45,6 +45,7 @@ async def chat_completion_v2():
         root_path = './case_study_generator'
         output_path = './output'
         for folder in os.listdir(root_path):
+            print(f"Processing {folder} ....")
             processed_response = ""
             for file in os.listdir(root_path+"/"+folder):
                 c=0
