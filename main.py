@@ -4,7 +4,7 @@ from fastapi.exceptions import HTTPException
 from typing import List
 from file import FileProcessor,FileBlobWrapper
 from json import loads,dumps,dump
-import os
+import os,boto3,io
 from utils import request_open_ai
 app = FastAPI()
 
@@ -67,5 +67,61 @@ async def chat_completion_v2():
                 dump(modified_res, json_file)
             
         return "process executed"
+    except Exception as e:
+        raise HTTPException(status_code=500,detail=str(e))
+
+@app.get('/upload/s3')
+async def chat_completion_v3(bucket_name:str = Form(),s3_input_path:str = Form(),s3_ouput_path:str=Form()):
+    try:
+        s3 = boto3.client('s3', aws_access_key_id=os.getenv("S3_ACCESS_KEY"),
+                        aws_secret_access_key=os.getenv("S3_SECRET_KEY"))
+        
+        response = s3.list_objects_v2(Bucket=bucket_name, Prefix=s3_input_path,Delimiter='/')
+        for folder in response.get('CommonPrefixes', []):
+            folder_prefix = folder.get('Prefix')
+            processed_response = ""
+            c=0
+            print(f"Processing {str(folder_prefix.split('/',1)[-1].replace('/',''))}")
+            files_response = s3.list_objects_v2(Bucket=bucket_name, Prefix=folder_prefix)
+            if 'Contents' in files_response:
+                # Iterate over each object
+                for obj in files_response['Contents']:
+                    key = obj['Key']
+                    file_key = key.split('/')[-1]
+                    print(key)
+                    # Create a stream to store the file content
+                    file_stream = io.BytesIO()
+
+                    # Download the file into the stream
+                    s3.download_fileobj(bucket_name, key, file_stream)
+                    file_stream.seek(0)
+                    file_uploaded = FileBlobWrapper(file_stream,filename=file_key,content_type=file_key.rsplit('.')[-1])
+                    processed_file = FileProcessor(file_uploaded)
+                    processed_response += f'Content- {c}'+"\n \n"+processed_file.process_file_to_txt()+"\n \n"
+                    c+=1
+                    # Reset the stream position to the beginning
+                modified_res = {}
+                try:
+                    response = request_open_ai(processed_response)
+                    
+                    modified_res = {"project":str(folder_prefix.split('/',1)[-1].replace('/','')),'csg':response.content}
+                except Exception as e:
+                    modified_res = {"project":str(folder_prefix.split('/',1)[-1].replace('/','')),'csg':str(e)}
+
+
+                
+
+
+                try:
+                    json_data = dumps(modified_res)
+                    file_obj = io.BytesIO(json_data.encode('utf-8'))
+                    s3.upload_fileobj(file_obj, bucket_name, s3_ouput_path+str(folder_prefix.split('/',1)[-1].replace('/',''))+".json")
+
+                except Exception as e:
+                    raise HTTPException(status_code=500,detail=str(e))
+            else:
+                raise HTTPException(status_code=400,detail=f"No files found with prefix: {s3_input_path}")
+        return "process executed"
+
     except Exception as e:
         raise HTTPException(status_code=500,detail=str(e))
